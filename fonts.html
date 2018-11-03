@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mastodon Fonts</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<style>
+html {
+	height: 100%;
+}
+body {
+	display: flex;
+	flex-direction: row;
+	margin: 0;
+	height: 100%;
+	font: 15px/20px 'Roboto', sans-serif;
+	background: #282c2d;
+	color: #fff;
+}
+#toot-contents {
+	flex-grow: 2;
+	padding: 2rem;
+}
+.sep {
+	display: none;
+}
+.emojione {
+	width: 20px;
+	height: 20px;
+	margin: -3px 0 0;
+	object-fit: contain;
+	vertical-align: middle;
+}
+#toot-contents, #sidebar {
+	flex-basis: 0;
+	max-height: 100%;
+	overflow-y: auto;
+}
+#sidebar {
+	flex-grow: 1;
+}
+#sidebar label {
+	display: block;
+	padding: 0.5rem;
+}
+</style>
+</head>
+<body>
+<div contenteditable="plaintext-only" id="toot-contents">
+</div>
+<form id="sidebar">
+<label><input placeholder="mastodon.example.com" id="emoji-domain" type="text"> <button id="load-emoji">Load Emoji</button></label>
+<label><input type="radio" name="mode" checked data-mode="plain"> plain text</label>
+<label><input type="radio" name="mode" data-mode="fullwidth"> ｆｕｌｌｗｉｄｔｈ</label>
+</form>
+<script>
+var reverse = {};
+var modes = {
+	plain: {}, // no changes
+	fullwidth: {
+		" ": "\u3000",
+		"0": "\uff10",
+		"1": "\uff11",
+		"2": "\uff12",
+		"3": "\uff13",
+		"4": "\uff14",
+		"5": "\uff15",
+		"6": "\uff16",
+		"7": "\uff17",
+		"8": "\uff18",
+		"9": "\uff19",
+		"A": "\uff21",
+		"B": "\uff22",
+		"C": "\uff23",
+		"D": "\uff24",
+		"E": "\uff25",
+		"F": "\uff26",
+		"G": "\uff27",
+		"H": "\uff28",
+		"I": "\uff29",
+		"J": "\uff2a",
+		"K": "\uff2b",
+		"L": "\uff2c",
+		"M": "\uff2d",
+		"N": "\uff2e",
+		"O": "\uff2f",
+		"P": "\uff30",
+		"Q": "\uff31",
+		"R": "\uff32",
+		"S": "\uff33",
+		"T": "\uff34",
+		"U": "\uff35",
+		"V": "\uff36",
+		"W": "\uff37",
+		"X": "\uff38",
+		"Y": "\uff39",
+		"Z": "\uff3a",
+		"a": "\uff41",
+		"b": "\uff42",
+		"c": "\uff43",
+		"d": "\uff44",
+		"e": "\uff45",
+		"f": "\uff46",
+		"g": "\uff47",
+		"h": "\uff48",
+		"i": "\uff49",
+		"j": "\uff4a",
+		"k": "\uff4b",
+		"l": "\uff4c",
+		"m": "\uff4d",
+		"n": "\uff4e",
+		"o": "\uff4f",
+		"p": "\uff50",
+		"q": "\uff51",
+		"r": "\uff52",
+		"s": "\uff53",
+		"t": "\uff54",
+		"u": "\uff55",
+		"v": "\uff56",
+		"w": "\uff57",
+		"x": "\uff58",
+		"y": "\uff59",
+		"z": "\uff5a",
+		",": "\uff0c",
+		".": "\uff0e",
+		":": "\uff1a",
+		";": "\uff1b",
+		"!": "\uff01",
+		"?": "\uff1f",
+		"\"": "\uff02",
+		"'": "\uff07",
+		"`": "\uff40",
+		"^": "\uff3e",
+		"~": "\uff5e",
+		"_": "\uff3f",
+		"&": "\uff06",
+		"@": "\uff20",
+		"#": "\uff03",
+		"%": "\uff05",
+		"+": "\uff0b",
+		"-": "\uff0d",
+		"*": "\uff0a",
+		"=": "\uff1d",
+		"<": "\uff1c",
+		">": "\uff1e",
+		"(": "\uff08",
+		")": "\uff09",
+		"[": "\uff3b",
+		"]": "\uff3d",
+		"{": "\uff5b",
+		"}": "\uff5d",
+		"|": "\uff5c",
+		"/": "\uff0f",
+		"\\": "\uff3c",
+		"$": "\uff04"
+	}
+};
+var currentMode = modes.plain;
+var localData = JSON.parse(localStorage['mstdn-fonts'] || '{}');
+if (localData.domain) {
+	document.getElementById('emoji-domain').value = localData.domain;
+}
+if (!localData.emoji) {
+	localData.emoji = {};
+} else {
+	Object.keys(localData.emoji).forEach(function(prefix) {
+		addEmojiSet(prefix, localData.emoji[prefix]);
+	});
+}
+document.getElementById('sidebar').addEventListener('change', function(e) {
+	var mode = e.target.getAttribute('data-mode');
+	if (mode) {
+		currentMode = modes[mode];
+	}
+});
+function emojiImage(e) {
+	var frag = document.createDocumentFragment();
+	var sep = document.createElement('span');
+	sep.classList.add('sep');
+	sep.textContent = e[1] === 'blank' ? '\u200b' : '\u200d';
+	frag.appendChild(sep);
+	var img = document.createElement('img');
+	img.src = e[0];
+	img.title = ':' + e[1] + ':';
+	img.alt = ':' + e[1] + ':';
+	img.classList.add('emojione');
+	img.setAttribute('draggable', 'false');
+	frag.appendChild(img);
+	return frag;
+}
+document.getElementById('toot-contents').addEventListener('beforeinput', function(e) {
+	if (!e.data) {
+		return;
+	}
+
+	var hadCodes = false;
+	var data = e.data;
+	Object.keys(reverse).forEach(function(code) {
+		if (data.indexOf(code) !== -1) {
+			hadCodes = true;
+			data = data.replace(new RegExp(code, 'g'), reverse[code]);
+		}
+	});
+
+	var chars = data.split('');
+	if (!hadCodes && !chars.some(function(c) { return Object.prototype.hasOwnProperty.call(currentMode, c); })) {
+		return;
+	}
+	e.returnValue = false;
+
+	chars.forEach(function(c) {
+		if (Object.prototype.hasOwnProperty.call(currentMode, c)) {
+			c = currentMode[c];
+			if (Array.isArray(c)) {
+				var img = emojiImage(c);
+				window.getSelection().deleteFromDocument();
+				window.getSelection().getRangeAt(0).insertNode(img);
+				window.getSelection().getRangeAt(0).collapse(false);
+			} else {
+				document.execCommand('insertText', true, c);
+			}
+		} else {
+			document.execCommand('insertText', true, c);
+		}
+	});
+});
+document.getElementById('toot-contents').addEventListener('input', function(e) {
+	fixEmojiOneSeparators();
+});
+var emojiXHR;
+document.getElementById('emoji-domain').addEventListener('input', function(e) {
+	document.getElementById('load-emoji').disabled = false;
+});
+document.getElementById('load-emoji').addEventListener('click', function(e) {
+	var btn = this;
+	e.preventDefault();
+	btn.disabled = true;
+	if (emojiXHR) {
+		emojiXHR.abort();
+	}
+	var domain = document.getElementById('emoji-domain').value;
+	emojiXHR = new XMLHttpRequest();
+	emojiXHR.open('GET', 'https://cors-anywhere.herokuapp.com/' + encodeURIComponent(domain) + '/api/v1/custom_emojis');
+	emojiXHR.crossOrigin = 'anonymous';
+	emojiXHR.onerror = function() {
+		btn.disabled = false;
+	};
+	emojiXHR.onload = function() {
+		btn.disabled = false;
+		var emojis = JSON.parse(emojiXHR.responseText).map(function(e) {
+			return [e.url, e.shortcode];
+		});
+		emojiXHR = null;
+		localData.domain = domain;
+		localData.emoji = {};
+		var blank = null;
+		var prefixes = {};
+		emojis.forEach(function(e) {
+			if (e[1] === 'blank') {
+				blank = e;
+			}
+			var prefix = e[1].substring(0, e[1].length - 1);
+			prefixes[prefix] = (prefixes[prefix] || 0) + 1;
+		});
+
+		document.querySelectorAll('input[name="mode"][data-mode^="emojis_"]').forEach(function(r) {
+			if (r.checked) {
+				document.querySelector('input[name="mode"][data-mode="plain"]').click();
+			}
+			delete modes[r.getAttribute('data-mode')];
+			r.parentNode.parentNode.removeChild(r.parentNode);
+		});
+		reverse = {};
+
+		Object.keys(prefixes).forEach(function(prefix) {
+			if (prefixes[prefix] >= 26) {
+				console.log('PREFIX:', prefix);
+				var replacements = {};
+				var lc = 0;
+				var uc = 0;
+				emojis.forEach(function(e) {
+					if (e[1].startsWith(prefix)) {
+						var ch = e[1].substring(prefix.length);
+						switch (ch) {
+						case 'st':
+							ch = '.';
+							break;
+						case 'dblquote':
+							ch = '"';
+							break;
+						case 'ex':
+							ch = '!';
+							break;
+						case 'question':
+							ch = '?';
+							break;
+						case 'ap':
+						case 'quote':
+							ch = '\'';
+							break;
+						}
+						if (ch.length === 1) {
+							if (ch !== ch.toUpperCase()) {
+								lc++;
+							} else if (ch !== ch.toLowerCase()) {
+								uc++;
+							}
+							replacements[ch] = e;
+						} else {
+							// debugger;
+						}
+					}
+				});
+				if (lc >= 26 && uc >= 26) {
+					// we have both sets of letters
+				} else if (lc >= 26) {
+					for (var i = 0; i < 26; i++) {
+						replacements[String.fromCharCode('A'.charCodeAt(0) + i)] = replacements[String.fromCharCode('a'.charCodeAt(0) + i)];
+					}
+				} else if (uc >= 26) {
+					for (var i = 0; i < 26; i++) {
+						replacements[String.fromCharCode('a'.charCodeAt(0) + i)] = replacements[String.fromCharCode('A'.charCodeAt(0) + i)];
+					}
+				} else {
+					return; // not a letter prefix set
+				}
+				if (blank) {
+					replacements[' '] = blank;
+				} else {
+					replacements[' '] = '\u3000';
+				}
+
+				localData.emoji[prefix] = replacements;
+				addEmojiSet(prefix, replacements);
+			}
+			localStorage['mstdn-fonts'] = JSON.stringify(localData);
+		});
+	};
+	emojiXHR.send();
+});
+function addEmojiSet(prefix, replacements) {
+	modes['emojis_' + prefix] = replacements;
+
+	Object.keys(replacements).forEach(function(k) {
+		reverse[':' + replacements[k][1] + ':'] = k;
+	});
+	var label = document.createElement('label');
+	var radio = document.createElement('input');
+	radio.type = 'radio';
+	radio.name = 'mode';
+	radio.setAttribute('data-mode', 'emojis_' + prefix);
+	label.appendChild(radio);
+	label.appendChild(document.createTextNode(' '));
+	label.appendChild(emojiImage(replacements['A']));
+	label.appendChild(emojiImage(replacements['B']));
+	label.appendChild(emojiImage(replacements['C']));
+	label.appendChild(emojiImage(replacements['d']));
+	label.appendChild(emojiImage(replacements['e']));
+	label.appendChild(emojiImage(replacements['f']));
+
+	document.getElementById('sidebar').appendChild(label);
+}
+function fixEmojiOneSeparators() {
+	document.querySelectorAll('.sep').forEach(function(sep) {
+		if (sep.nextSibling && sep.nextSibling.className === 'emojione' && sep.textContent === (sep.nextSibling.alt === ':blank:' ? '\u200b' : '\u200d')) {
+			return;
+		}
+		sep.parentNode.removeChild(sep);
+	});
+	document.querySelectorAll('.emojione').forEach(function(img) {
+		if (img.previousSibling && img.previousSibling.className === 'sep' && img.previousSibling.textContent === (img.alt === ':blank:' ? '\u200b' : '\u200d')) {
+			return;
+		}
+
+		var sep = document.createElement('span');
+		sep.classList.add('sep');
+		sep.textContent = img.alt === ':blank:' ? '\u200b' : '\u200d';
+		img.parentNode.insertBefore(sep, img);
+	});
+}
+</script>
+</body>
+</html>
