@@ -22,9 +22,6 @@ body {
 	flex-grow: 2;
 	padding: 2rem;
 }
-.sep {
-	display: none;
-}
 .emojione {
 	width: 20px;
 	height: 20px;
@@ -55,7 +52,7 @@ body {
 <label><input type="radio" name="mode" data-mode="fullwidth"> ｆｕｌｌｗｉｄｔｈ</label>
 </form>
 <script>
-var reverse = {};
+var reverse = {'\u200b': ''};
 var modes = {
 	plain: {}, // no changes
 	fullwidth: {
@@ -175,19 +172,13 @@ document.getElementById('sidebar').addEventListener('change', function(e) {
 	}
 });
 function emojiImage(e) {
-	var frag = document.createDocumentFragment();
-	var sep = document.createElement('span');
-	sep.classList.add('sep');
-	sep.textContent = e[1] === 'blank' ? '\u200b' : '\u200d';
-	frag.appendChild(sep);
 	var img = document.createElement('img');
 	img.src = e[0];
 	img.title = ':' + e[1] + ':';
-	img.alt = ':' + e[1] + ':';
+	img.alt = '\u200b:' + e[1] + ':';
 	img.classList.add('emojione');
 	img.setAttribute('draggable', 'false');
-	frag.appendChild(img);
-	return frag;
+	return img;
 }
 document.getElementById('toot-contents').addEventListener('beforeinput', function(e) {
 	if (!e.data) {
@@ -199,7 +190,7 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 	Object.keys(reverse).forEach(function(code) {
 		if (data.indexOf(code) !== -1) {
 			hadCodes = true;
-			data = data.replace(new RegExp(code, 'g'), reverse[code]);
+			data = data.replace(new RegExp(code, 'gu'), reverse[code]);
 		}
 	});
 
@@ -224,9 +215,6 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 			document.execCommand('insertText', true, c);
 		}
 	});
-});
-document.getElementById('toot-contents').addEventListener('input', function(e) {
-	fixEmojiOneSeparators();
 });
 var emojiXHR;
 document.getElementById('emoji-domain').addEventListener('input', function(e) {
@@ -271,7 +259,7 @@ document.getElementById('load-emoji').addEventListener('click', function(e) {
 			delete modes[r.getAttribute('data-mode')];
 			r.parentNode.parentNode.removeChild(r.parentNode);
 		});
-		reverse = {};
+		reverse = {'\u200b': ''};
 
 		Object.keys(prefixes).forEach(function(prefix) {
 			if (prefixes[prefix] >= 26) {
@@ -359,24 +347,6 @@ function addEmojiSet(prefix, replacements) {
 	label.appendChild(emojiImage(replacements['f']));
 
 	document.getElementById('sidebar').appendChild(label);
-}
-function fixEmojiOneSeparators() {
-	document.querySelectorAll('.sep').forEach(function(sep) {
-		if (sep.nextSibling && sep.nextSibling.className === 'emojione' && sep.textContent === (sep.nextSibling.alt === ':blank:' ? '\u200b' : '\u200d')) {
-			return;
-		}
-		sep.parentNode.removeChild(sep);
-	});
-	document.querySelectorAll('.emojione').forEach(function(img) {
-		if (img.previousSibling && img.previousSibling.className === 'sep' && img.previousSibling.textContent === (img.alt === ':blank:' ? '\u200b' : '\u200d')) {
-			return;
-		}
-
-		var sep = document.createElement('span');
-		sep.classList.add('sep');
-		sep.textContent = img.alt === ':blank:' ? '\u200b' : '\u200d';
-		img.parentNode.insertBefore(sep, img);
-	});
 }
 </script>
 </body>
