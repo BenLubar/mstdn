@@ -152,6 +152,14 @@ var modes = {
 		"$": "\uff04"
 	}
 };
+var params = Object.create(null);
+if (location.search) {
+	location.search.substring(1).split('&').map(function(p) {
+		var s = p.split(/=/);
+		params[s[0]] = s[1] || '';
+	});
+}
+
 var currentMode = modes.plain;
 var localData = JSON.parse(localStorage['mstdn-fonts'] || '{}');
 if (localData.domain) {
@@ -223,10 +231,12 @@ document.getElementById('load-emoji').addEventListener('click', function(e) {
 	var btn = this;
 	e.preventDefault();
 	btn.disabled = true;
+	loadEmoji(document.getElementById('emoji-domain').value);
+});
+function loadEmoji(domain) {
 	if (emojiXHR) {
 		emojiXHR.abort();
 	}
-	var domain = document.getElementById('emoji-domain').value;
 	emojiXHR = new XMLHttpRequest();
 	emojiXHR.open('GET', 'https://cors-anywhere.herokuapp.com/' + encodeURIComponent(domain) + '/api/v1/custom_emojis');
 	emojiXHR.crossOrigin = 'anonymous';
@@ -335,7 +345,7 @@ document.getElementById('load-emoji').addEventListener('click', function(e) {
 		});
 	};
 	emojiXHR.send();
-});
+}
 function addEmojiSet(prefix, replacements) {
 	modes['emojis_' + prefix] = replacements;
 
@@ -357,6 +367,11 @@ function addEmojiSet(prefix, replacements) {
 	label.appendChild(emojiImage(replacements['f']));
 
 	document.getElementById('sidebar').appendChild(label);
+}
+
+if (Object.hasOwnProperty.call(params, 'domain') && (!localData.domain || params.domain !== localData.domain)) {
+	document.getElementById('emoji-domain').value = params.domain;
+	loadEmoji(params.domain);
 }
 </script>
 </body>
