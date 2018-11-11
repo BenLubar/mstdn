@@ -934,6 +934,10 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 	});
 });
 function checkShortcode(fuzzy) {
+	if (!localData.nf) {
+		return false;
+	}
+
 	var shortcode = '';
 	var sel = window.getSelection().getRangeAt(0);
 	var sc = sel.startContainer;
