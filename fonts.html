@@ -372,6 +372,11 @@ function addEmojiSet(prefix, replacements) {
 if (Object.hasOwnProperty.call(params, 'domain') && (!localData.domain || params.domain !== localData.domain)) {
 	document.getElementById('emoji-domain').value = params.domain;
 	loadEmoji(params.domain);
+} else if (!localData.domain && document.referrer) {
+	var domain = new URL(document.referrer).hostname;
+
+	document.getElementById('emoji-domain').value = domain;
+	loadEmoji(domain);
 }
 </script>
 </body>
