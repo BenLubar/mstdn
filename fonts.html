@@ -152,6 +152,13 @@ var modes = {
 		"$": "\uff04"
 	}
 };
+
+Object.keys(modes).forEach(function(mode) {
+	Object.keys(modes[mode]).forEach(function(c) {
+		reverse[modes[mode][c]] = c;
+	});
+});
+
 var params = Object.create(null);
 if (location.search) {
 	location.search.substring(1).split('&').map(function(p) {
