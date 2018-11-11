@@ -946,7 +946,9 @@ function checkShortcode(fuzzy) {
 		so = sc.length;
 	}
 	if (sc.nodeType === Node.TEXT_NODE) {
-		shortcode = sc.nodeValue.substring(0, so);
+		shortcode = sc.nodeValue.substring(0, so).split('').map(function(c) {
+			return reverse[c] || c;
+		}).join('');
 	} else {
 		// ???
 		debugger;
@@ -954,7 +956,9 @@ function checkShortcode(fuzzy) {
 	sc = sc.previousSibling;
 	while (sc && !/[:\s]/.test(shortcode)) {
 		if (sc.nodeType === Node.TEXT_NODE) {
-			shortcode = sc.nodeValue + shortcode;
+			shortcode = sc.nodeValue.split('').map(function(c) {
+				return reverse[c] || c;
+			}).join('') + shortcode;
 		} else if (sc.nodeType === Node.ELEMENT_NODE && sc.nodeName === 'IMG' && sc.alt.charCodeAt(0) === 0x200b && Object.hasOwnProperty.call(reverse, sc.alt.substring(1))) {
 			shortcode = reverse[sc.alt.substring(1)] + shortcode;
 			fuzzy = true;
