@@ -922,7 +922,7 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 	e.returnValue = false;
 
 	chars.forEach(function(c) {
-		if (c === ':' && checkShortcode()) {
+		if (c === ':' && checkShortcode(hadCodes)) {
 			return;
 		}
 
@@ -933,12 +933,11 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 		}
 	});
 });
-function checkShortcode() {
+function checkShortcode(fuzzy) {
 	var shortcode = '';
 	var sel = window.getSelection().getRangeAt(0);
 	var sc = sel.startContainer;
 	var so = sel.startOffset;
-	var fuzzy = false;
 	while (sc.nodeType === Node.ELEMENT_NODE) {
 		sc = sc.childNodes[so];
 		if (!sc) {
