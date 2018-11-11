@@ -1127,9 +1127,9 @@ function loadEmoji(domain) {
 			}
 		});
 		localData.nf = {}; // non-font
-		var multiWhitelist = {
+		var multiOverride = {
 			'ral': ['ralsei', 'sei'],
-			'tbc1': ['tbc', 'tbc2', 'tbc3', 'tbc4', 'tbc5']
+			'brain1': false
 		};
 		emojis.forEach(function(e) {
 			if (reverse[':' + e[1] + ':']) {
@@ -1137,8 +1137,11 @@ function loadEmoji(domain) {
 			}
 
 			localData.nf[e[1]] = [e];
-			if (Object.hasOwnProperty.call(multiWhitelist, e[1])) {
-				var set = multiWhitelist[e[1]].slice(0);
+			if (Object.hasOwnProperty.call(multiOverride, e[1])) {
+				if (!multiOverride[e[1]]) {
+					return;
+				}
+				var set = multiOverride[e[1]].slice(0);
 				var name = set[0];
 				set[0] = e[1];
 				set = set.map(function(name) {
@@ -1150,12 +1153,12 @@ function loadEmoji(domain) {
 					return;
 				}
 				localData.nf[name] = set;
-			} else if (/_1$/.test(e[1])) {
+			} else if (/[^0-9]1$/.test(e[1])) {
 				var set = [e];
-				var name = e[1].substring(0, e[1].length - 2);
+				var name = e[1].substring(0, e[1].length - 1);
 				for (var i = 2; ; i++) {
 					var next = emojis.find(function(e) {
-						return e[1] === name + '_' + i;
+						return e[1] === name + i;
 					});
 					if (!next) {
 						break;
@@ -1163,6 +1166,9 @@ function loadEmoji(domain) {
 					set.push(next);
 				}
 				if (set.length > 1) {
+					if (/_$/.test(name)) {
+						name = name.substring(0, name.negth - 1);
+					}
 					localData.nf[name] = set;
 				}
 			}
