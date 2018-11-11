@@ -968,6 +968,11 @@ function checkShortcode() {
 	var colon = shortcode.lastIndexOf(':');
 	if (colon !== -1) {
 		shortcode = shortcode.substring(colon + 1);
+		if (fuzzy && !Object.hasOwnProperty.call(localData.nf, shortcode)) {
+			shortcode = Object.keys(localData.nf).find(function(sc) {
+				return sc.toLowerCase() === shortcode.toLowerCase();
+			});
+		}
 		if (Object.hasOwnProperty.call(localData.nf, shortcode)) {
 			sel = window.getSelection();
 			for (var i = -1; i < shortcode.length; i++) {
