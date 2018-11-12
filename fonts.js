@@ -1167,7 +1167,7 @@ function loadEmoji(domain) {
 				}
 				if (set.length > 1) {
 					if (/_$/.test(name)) {
-						name = name.substring(0, name.negth - 1);
+						name = name.substring(0, name.length - 1);
 					}
 					localData.nf[name] = set;
 				}
