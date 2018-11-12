@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="logo.svg">
+<title>Mastodon notification sound at random intervals 10 hours ASMR</title>
+<style>
+html {
+	background-color: #282c37;
+}
+#logo {
+	left: 25%;
+	top: 25%;
+	width: 50%;
+	height: 50%;
+	position: absolute;
+	cursor: pointer;
+}
+#logo.active {
+	opacity: 0.25;
+	transition: 1s opacity;
+	cursor: unset;
+	pointer-events: none;
+}
+#logo.active.boop {
+	opacity: 0.75;
+	transition: 0s opacity;
+}
+</style>
+</head>
+<body>
+<audio id="boop" preload>
+<source src="boop.ogg" type="audio/ogg; codecs=vorbis">
+<source src="boop.mp3" type="audio/mpeg">
+</audio>
+<img src="logo.svg" id="logo">
+<script>
+var boop = document.getElementById("boop");
+var logo = document.getElementById("logo");
+logo.addEventListener("click", function() {
+	logo.classList.add("active");
+
+	// always play during a trusted event handler the first time
+	boop.play();
+
+	setInterval(function() {
+		if (Math.random() > 0.1) {
+			return;
+		}
+
+		logo.classList.add("boop");
+		boop.play();
+
+		setTimeout(function() {
+			logo.classList.remove("boop");
+		}, 10);
+	}, 250);
+}, {once: true});
+</script>
+</body>
+</html>
