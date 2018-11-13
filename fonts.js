@@ -1128,8 +1128,10 @@ function loadEmoji(domain) {
 		});
 		localData.nf = {}; // non-font
 		var multiOverride = {
-			'ral': ['ralsei', 'sei'],
-			'brain1': false
+			't1': [],
+			'ral': [['ralsei', 'sei']],
+			'brain1': [],
+			'sonic_1': [['son', 'sonic_2', 'sonic_n'], ['sonic', 'sonic_2', 'sonic_3', 'sonic_4']],
 		};
 		emojis.forEach(function(e) {
 			if (reverse[':' + e[1] + ':']) {
@@ -1138,22 +1140,24 @@ function loadEmoji(domain) {
 
 			localData.nf[e[1]] = [e];
 			if (Object.hasOwnProperty.call(multiOverride, e[1])) {
-				if (!multiOverride[e[1]]) {
-					return;
-				}
-				var set = multiOverride[e[1]].slice(0);
-				var name = set[0];
-				set[0] = e[1];
-				set = set.map(function(name) {
-					return emojis.find(function(e) {
-						return e[1] === name;
+				multiOverride[e[1]].forEach(function(set) {
+					set = set.slice(0);
+					var name = set[0];
+					set[0] = e[1];
+					set = set.map(function(name) {
+						return emojis.find(function(e) {
+							return e[1] === name;
+						});
 					});
+					if (!set.every(Boolean)) {
+						return;
+					}
+					localData.nf[name] = set;
 				});
-				if (!set.every(Boolean)) {
-					return;
-				}
-				localData.nf[name] = set;
-			} else if (/[^0-9]1$/.test(e[1])) {
+				return;
+			}
+
+			if (/[^0-9]1$/.test(e[1])) {
 				var set = [e];
 				var name = e[1].substring(0, e[1].length - 1);
 				for (var i = 2; ; i++) {
