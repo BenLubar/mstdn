@@ -1042,6 +1042,9 @@ function loadEmoji(domain) {
 				blank = e;
 			}
 			var prefix = e[1].substring(0, e[1].length - 1);
+			if (prefix.endsWith('_l_') || prefix.endsWith('_u_')) {
+				prefix = prefix.substring(0, prefix.length - 2);
+			}
 			prefixes[prefix] = (prefixes[prefix] || 0) + 1;
 		});
 
@@ -1090,6 +1093,13 @@ function loadEmoji(domain) {
 						case 'quote':
 							ch = '\'';
 							break;
+						}
+						if (ch.length === 3) {
+							if (ch.startsWith('l_')) {
+								ch = ch.substring(2).toLowerCase();
+							} else if (ch.startsWith('u_')) {
+								ch = ch.substring(2).toUpperCase();
+							}
 						}
 						if (ch.length === 1) {
 							if (ch !== ch.toUpperCase()) {
