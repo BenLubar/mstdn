@@ -1142,10 +1142,11 @@ function loadEmoji(domain) {
 		});
 		localData.nf = {}; // non-font
 		var multiOverride = {
-			't1': [],
-			'ral': [['ralsei', 'sei']],
 			'brain1': [],
+			'jbo': [['jbobau', 'bau']],
+			'ral': [['ralsei', 'sei']],
 			'sonic_1': [['son', 'sonic_2', 'sonic_n'], ['sonic', 'sonic_2', 'sonic_3', 'sonic_4']],
+			't1': [],
 		};
 		emojis.forEach(function(e) {
 			if (reverse[':' + e[1] + ':']) {
