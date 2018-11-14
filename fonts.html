@@ -6,6 +6,9 @@
 <title>Mastodon Fonts</title>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <style>
+* {
+	box-sizing: border-box;
+}
 html {
 	height: 100%;
 }
@@ -19,8 +22,44 @@ body {
 	color: #fff;
 }
 #toot-contents {
-	flex-grow: 2;
+	position: relative;
+	flex-grow: 1;
 	padding: 2rem;
+}
+#toot-contents::before {
+	display: block;
+	position: absolute;
+	content: 'Click here to type.';
+	pointer-events: none;
+	left: 50%;
+	top: 50%;
+	width: 15rem;
+	height: 2.5rem;
+	margin-left: -7.5rem;
+	margin-top: -1.25rem;
+	font-size: 1.5rem;
+	line-height: 2.5rem;
+	text-align: center;
+	background: #6666;
+	border-radius: 0.25rem;
+	opacity: 0;
+	transition: 0.2s opacity;
+}
+@media (pointer: coarse) {
+	#toot-contents::before {
+		content: 'Press here to type.';
+	}
+}
+#toot-contents:not(:focus-within)::before {
+	opacity: 1;
+	transition: 1s opacity;
+}
+#toot-contents {
+	box-shadow: 0 0 0 #fff0 inset;
+	transition: 0.5s box-shadow;
+}
+#toot-contents:focus-within {
+	box-shadow: 0 0 2rem #fff6 inset;
 }
 .emojione {
 	width: 20px;
@@ -30,16 +69,36 @@ body {
 	vertical-align: middle;
 }
 #toot-contents, #sidebar {
-	flex-basis: 0;
+	flex-basis: 20rem;
 	max-height: 100%;
 	overflow-y: auto;
-}
-#sidebar {
-	flex-grow: 1;
 }
 #sidebar label {
 	display: block;
 	padding: 0.5rem;
+}
+@media (max-width: 50rem) {
+	html {
+		overflow-x: hidden;
+	}
+	#toot-contents {
+		transition: 0.5s margin-left;
+		margin-left: -18rem;
+	}
+	#toot-contents:focus-within {
+		margin-left: 0rem;
+	}
+	#sidebar {
+		transition: 0.5s margin-right;
+		margin-right: 0rem;
+	}
+	#toot-contents:focus-within + #sidebar {
+		margin-right: -18rem;
+	}
+	#toot-contents::before {
+		left: calc(50% + 9rem);
+		transform: rotate(270deg);
+	}
 }
 </style>
 </head>
