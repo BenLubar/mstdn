@@ -899,12 +899,13 @@ function emojiImage(e) {
 	img.setAttribute('draggable', 'false');
 	return img;
 }
-document.getElementById('toot-contents').addEventListener('beforeinput', function(e) {
+var tc = document.getElementById('toot-contents');
+function beforeInput(e) {
 	if (!e.data) {
 		return;
 	}
 
-	var hadCodes = false;
+	var hadCodes = e.forceConvert || false;
 	var data = e.data;
 	Object.keys(reverse).forEach(function(code) {
 		if (data.indexOf(code) !== -1) {
@@ -926,13 +927,16 @@ document.getElementById('toot-contents').addEventListener('beforeinput', functio
 			return;
 		}
 
-		if (Object.hasOwnProperty.call(currentMode, c)) {
+		if (contentEditableShim) {
+			insertChar(currentMode[c] || c);
+		} else if (Object.hasOwnProperty.call(currentMode, c)) {
 			insertChar(currentMode[c]);
 		} else {
 			document.execCommand('insertText', true, c);
 		}
 	});
-});
+}
+tc.addEventListener('beforeinput', beforeInput);
 function checkShortcode(fuzzy) {
 	if (!localData.nf) {
 		return false;
@@ -996,15 +1000,20 @@ function checkShortcode(fuzzy) {
 	return false;
 }
 function insertChar(c) {
+	var el;
 	if (!Array.isArray(c)) {
-		document.execCommand('insertText', true, c);
-		return;
+		if (!contentEditableShim) {
+			document.execCommand('insertText', true, c);
+			return;
+		}
+		el = document.createTextNode(c);
+	} else {
+		el = emojiImage(c);
 	}
 
-	var img = emojiImage(c);
 	var sel = window.getSelection();
 	sel.deleteFromDocument();
-	sel.getRangeAt(0).insertNode(img);
+	sel.getRangeAt(0).insertNode(el);
 	sel.getRangeAt(0).collapse(false);
 }
 var emojiXHR;
@@ -1227,4 +1236,71 @@ if (Object.hasOwnProperty.call(params, 'domain') && (!localData.domain || params
 
 	document.getElementById('emoji-domain').value = domain;
 	loadEmoji(domain);
+}
+
+var contentEditableShim = tc.contentEditable === 'inherit';
+if (Object.hasOwnProperty.call(params, 'contentEditableShim')) {
+	contentEditableShim = Boolean(params.contentEditableShim);
+}
+
+if (contentEditableShim) {
+	document.getElementById('shim-warning').style.display = 'block';
+	tc.contentEditable = 'true';
+	var actionWasSynthesized = false;
+	tc.addEventListener('paste', function(e) {
+		e.preventDefault();
+		var text = e.clipboardData.getData('text/plain');
+		actionWasSynthesized = true;
+		beforeInput({
+			data: text,
+			forceConvert: true
+		});
+		actionWasSynthesized = false;
+	});
+	new MutationObserver(function(changes) {
+		if (actionWasSynthesized) {
+			return;
+		}
+
+		actionWasSynthesized = true;
+		changes.forEach(function(change) {
+			if (change.type === 'childList') {
+				change.addedNodes.forEach(function(node) {
+					if (node.nodeType !== Node.TEXT_NODE) {
+						return;
+					}
+
+					var sel = window.getSelection();
+					var diff = node.textContent;
+					for (var i = 0; i < diff.length; i++) {
+						sel.modify('extend', 'backward', 'character');
+					}
+					beforeInput({
+						data: diff,
+						forceConvert: true
+					});
+				});
+				return;
+			}
+
+			var changedFrom = change.oldValue;
+			var changedTo = change.target.textContent;
+			if (changedFrom.length > changedTo.length) {
+				// TODO: is a shorter length always from deletion?
+				return;
+			}
+
+			var sel = window.getSelection();
+			for (var i = changedFrom.length; i < changedTo.length; i++) {
+				sel.modify('extend', 'backward', 'character');
+			}
+			beforeInput({
+				data: sel.toString(),
+				forceConvert: true
+			});
+		});
+		requestAnimationFrame(function() {
+			actionWasSynthesized = false;
+		});
+	}).observe(tc, {subtree: true, characterData: true, characterDataOldValue: true, childList: true});
 }

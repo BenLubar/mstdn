@@ -21,6 +21,14 @@ body {
 	background: #282c2d;
 	color: #fff;
 }
+#shim-warning {
+	display: none;
+	padding: 0.5rem 1rem;
+	color: #faa;
+	background: #282c2d;
+	font-size: 0.75rem;
+	user-select: none;
+}
 #toot-contents {
 	position: relative;
 	flex-grow: 1;
@@ -105,6 +113,7 @@ body {
 <body>
 <div contenteditable="plaintext-only" id="toot-contents">Type or paste text here!</div>
 <form id="sidebar">
+<div id="shim-warning">The editor is running in compatibility mode. Some features might not work as expected. If possible, try using Google Chrome or Chromium.</div>
 <label><input placeholder="mastodon.example.com" id="emoji-domain" type="text"> <button id="load-emoji">Load Emoji</button></label>
 <label><input type="radio" name="mode" checked data-mode="plain"> plain text</label>
 <label><input type="radio" name="mode" data-mode="fullwidth"> ｆｕｌｌｗｉｄｔｈ</label>
