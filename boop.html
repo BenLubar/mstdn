@@ -7,22 +7,26 @@
 <style>
 html {
 	background-color: #282c37;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
 }
-#logo {
-	left: 25%;
-	top: 25%;
+.logo {
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
 	width: 50%;
 	height: 50%;
 	position: absolute;
 	cursor: pointer;
 }
-#logo.active {
+.logo.active {
 	opacity: 0.25;
 	transition: 1s opacity;
 	cursor: unset;
 	pointer-events: none;
 }
-#logo.active.boop {
+.logo.active.boop {
 	opacity: 0.75;
 	transition: 0s opacity;
 }
@@ -33,29 +37,48 @@ html {
 <source src="boop.ogg" type="audio/ogg; codecs=vorbis">
 <source src="boop.mp3" type="audio/mpeg">
 </audio>
-<img src="logo.svg" id="logo">
+<img src="logo.svg" id="first-logo" class="logo">
 <script>
 var boop = document.getElementById("boop");
-var logo = document.getElementById("logo");
+var logo = document.getElementById("first-logo");
 logo.addEventListener("click", function() {
+	setupLogo(logo);
+
+	setTimeout(function() {
+		document.addEventListener("click", function(e) {
+			var logo = new Image();
+			logo.src = "logo.svg";
+			logo.classList.add("logo");
+			logo.style.left = (e.clientX / window.innerWidth * 100) + "%";
+			logo.style.top = (e.clientY / window.innerHeight * 100) + "%";
+			document.body.appendChild(logo);
+			setupLogo(logo);
+		});
+	}, 10);
+}, {once: true});
+
+function setupLogo(logo) {
+	var myBoop = boop.cloneNode(true);
+	document.body.append(myBoop);
 	logo.classList.add("active");
 
 	// always play during a trusted event handler the first time
-	boop.play();
+	myBoop.play();
 
 	setInterval(function() {
 		if (Math.random() > 0.1) {
 			return;
 		}
 
+		document.body.appendChild(logo);
 		logo.classList.add("boop");
-		boop.play();
+		myBoop.play();
 
 		setTimeout(function() {
 			logo.classList.remove("boop");
 		}, 10);
 	}, 250);
-}, {once: true});
+}
 </script>
 </body>
 </html>
