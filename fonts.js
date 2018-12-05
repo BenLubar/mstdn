@@ -901,6 +901,7 @@ function emojiImage(e) {
 }
 var tc = document.getElementById('toot-contents');
 function beforeInput(e) {
+	requestAnimationFrame(helpScreenReaders);
 	if (!e.data) {
 		return;
 	}
@@ -1303,4 +1304,76 @@ if (contentEditableShim) {
 			actionWasSynthesized = false;
 		});
 	}).observe(tc, {subtree: true, characterData: true, characterDataOldValue: true, childList: true});
+}
+
+function helpScreenReaders() {
+	// step 1: break any multi-emoji that are not identical to their original form
+	// TODO
+	/*tc.querySelectorAll('span.emojimulti').forEach(function(span) {
+		if (!span.childNodes.every(function(child, i) {
+			debugger;
+		})) {
+			debugger;
+		}
+	});*/
+
+	// step 2: find font emoji and hide them from screen readers
+	tc.querySelectorAll('img.emojione:not([role="presentation"])').forEach(function(img) {
+		if (reverse[img.title] && reverse[img.title].length === 1) {
+			img.setAttribute('role', 'presentation');
+		}
+	});
+
+	// step 3: find spaces and non-font emoji inside screen reader words and break them out
+	tc.querySelectorAll('span.emojitext[aria-label] img.emojione').forEach(function(img) {
+		if (reverse[img.title] && (reverse[img.title] === ' ' || reverse[img.title].length !== 1)) {
+			// For now, just break the entire word and rebuild it below.
+			var span = img.parentNode;
+			if (span.nodeName !== 'SPAN') {
+				return;
+			}
+			while (span.firstChild) {
+				span.parentNode.insertBefore(span.firstChild, span);
+			}
+			span.parentNode.removeChild(span);
+		}
+	});
+
+	// step 4: find stray letter emoji and wrap them
+	tc.querySelectorAll('img.emojione[role="presentation"]').forEach(function(img) {
+		if (img.parentElement.nodeName === 'SPAN' || reverse[img.title] === ' ' || reverse[img.title].length !== 1) {
+			return;
+		}
+
+		if (!img.previousSibling || img.previousSibling.nodeType !== Node.ELEMENT_NODE || img.previousSibling.nodeName !== 'SPAN' || !img.previousSibling.classList.contains('emojitext')) {
+			var wrapper = document.createElement('span');
+			wrapper.classList.add('emojitext');
+			wrapper.setAttribute('aria-label', '');
+			img.parentElement.insertBefore(wrapper, img);
+		}
+
+		var wrapper = img.previousSibling;
+		wrapper.appendChild(img);
+		wrapper.setAttribute('aria-label', wrapper.getAttribute('aria-label') + reverse[img.title]);
+	});
+
+	// step 5: combine adjacent words
+	tc.querySelectorAll('span.emojitext + span.emojitext').forEach(function(span) {
+		if (span.previousSibling !== span.previousElementSibling) {
+			return;
+		}
+
+		span.previousSibling.setAttribute('aria-label', span.previousSibling.getAttribute('aria-label') + span.getAttribute('aria-label'));
+		while (span.firstChild) {
+			span.previousSibling.appendChild(span.firstChild);
+		}
+		span.parentNode.removeChild(span);
+	});
+
+	// step 6: re-compute words because something is going wrong and I don't have time to debug it
+	tc.querySelectorAll('span.emojitext').forEach(function(span) {
+		span.setAttribute('aria-label', [].map.call(span.children, function(img) {
+			return reverse[img.title];
+		}).join(''));
+	});
 }
