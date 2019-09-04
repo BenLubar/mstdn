@@ -7,6 +7,8 @@ self.addEventListener('install', function(event) {
 		return cache.addAll([
 			'boop.html',
 			'logo.svg',
+			'logo-192.png',
+			'logo-512.png',
 			'boop.mp3',
 			'boop.ogg',
 			'boop-manifest.json'
