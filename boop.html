@@ -2,8 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="logo.svg">
+<link rel="icon" href="logo.svg" type="image/svg+xml" sizes="any">
 <title>Mastodon notification sound at random intervals 10 hours ASMR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="boop-manifest.json">
+<meta name="theme-color" content="#282c37">
 <style>
 html {
 	background-color: #282c37;
@@ -79,6 +82,11 @@ function setupLogo(logo) {
 		}, 10);
 	}, 250);
 }
+</script>
+<script>
+navigator.serviceWorker.register('boop-sw.js', {
+	scope: '/mstdn/boop.html'
+});
 </script>
 </body>
 </html>

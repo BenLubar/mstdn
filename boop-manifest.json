@@ -1,0 +1,16 @@
+{
+	"short_name": "Boop!",
+	"name": "Mastodon notification sound at random intervals 10 hours ASMR",
+	"icons": [
+		{
+			"src": "logo.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		}
+	],
+	"start_url": "/mstdn/boop.html",
+	"background_color": "#282c37",
+	"theme_color": "#282c37",
+	"display": "standalone",
+	"scope": "/mstdn/boop.html"
+}
