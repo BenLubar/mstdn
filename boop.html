@@ -44,6 +44,11 @@ html {
 <img src="logo.svg" id="first-logo" class="logo">
 <script>
 var boop = document.getElementById("boop");
+if (/bean/.test(location.search)) {
+	boop.querySelectorAll("source").forEach(function(s) {
+		s.src = s.src.replace(/boop/, "honk");
+	});
+}
 var logo = document.getElementById("first-logo");
 logo.addEventListener("click", function() {
 	setupLogo(logo);

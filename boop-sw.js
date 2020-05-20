@@ -11,6 +11,8 @@ self.addEventListener('install', function(event) {
 			'logo-512.png',
 			'boop.mp3',
 			'boop.ogg',
+			'honk.mp3',
+			'honk.ogg',
 			'boop-manifest.json'
 		]);
 	}));
