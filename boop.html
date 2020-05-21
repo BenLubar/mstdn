@@ -46,7 +46,7 @@ html {
 var boop = document.getElementById("boop");
 var logo = document.getElementById("first-logo");
 if (/bean/.test(location.search)) {
-	document.getElementById("first-logo").src = "beanskull.png";
+	logo.src = "beanskull.png";
 	boop.querySelectorAll("source").forEach(function(s) {
 		s.src = s.src.replace(/boop/, "honk");
 	});
