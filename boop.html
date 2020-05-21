@@ -44,24 +44,25 @@ html {
 <img src="logo.svg" id="first-logo" class="logo">
 <script>
 var boop = document.getElementById("boop");
+var logo = document.getElementById("first-logo");
 if (/bean/.test(location.search)) {
+	document.getElementById("first-logo").src = "beanskull.png";
 	boop.querySelectorAll("source").forEach(function(s) {
 		s.src = s.src.replace(/boop/, "honk");
 	});
 }
-var logo = document.getElementById("first-logo");
 logo.addEventListener("click", function() {
 	setupLogo(logo);
 
 	setTimeout(function() {
 		document.addEventListener("click", function(e) {
-			var logo = new Image();
-			logo.src = "logo.svg";
-			logo.classList.add("logo");
-			logo.style.left = (e.clientX / window.innerWidth * 100) + "%";
-			logo.style.top = (e.clientY / window.innerHeight * 100) + "%";
-			document.body.appendChild(logo);
-			setupLogo(logo);
+			var copy = new Image();
+			copy.src = logo.src;
+			copy.classList.add("logo");
+			copy.style.left = (e.clientX / window.innerWidth * 100) + "%";
+			copy.style.top = (e.clientY / window.innerHeight * 100) + "%";
+			document.body.appendChild(copy);
+			setupLogo(copy);
 		});
 	}, 10);
 }, {once: true});
