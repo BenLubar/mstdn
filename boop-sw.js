@@ -9,9 +9,9 @@ self.addEventListener('install', function(event) {
 			'logo.svg',
 			'logo-192.png',
 			'logo-512.png',
-			'beanskull.png',
 			'boop.mp3',
 			'boop.ogg',
+			'beanskull.png',
 			'honk.mp3',
 			'honk.ogg',
 			'boop-manifest.json'
