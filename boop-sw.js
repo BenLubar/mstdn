@@ -1,11 +1,12 @@
 // extremely simple service worker
 
-const version = 1;
+const version = 2;
 
 self.addEventListener('install', function(event) {
-	event.waitUntil(caches.open('mstdn-boop-v1').then(function(cache) {
+	event.waitUntil(caches.open('mstdn-boop-v2').then(function(cache) {
 		return cache.addAll([
 			'boop.html',
+			'boop.html?bean',
 			'logo.svg',
 			'logo-192.png',
 			'logo-512.png',
